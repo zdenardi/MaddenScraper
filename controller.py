@@ -40,7 +40,16 @@ def set_stat_to():
     hold_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT, 4)
 
 
+def clear_text():
+    press_amount(3, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+    press_amount(2, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
+    press_once(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+    press_amount(2, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+    press_amount(3, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
+
+
 def type_madden():
+    clear_text()
     first_name = "Zach"
     last_name = "DeNardi"
     current_pos = 2
@@ -50,17 +59,13 @@ def type_madden():
     second_row_end = 25
     third_row_start = 26
     third_row_end = 37
+    buffer_characters = 0
 
     for character in first_name.lower():
         current_row = 0
         move_row = 0
         print(character)
 
-        # from e,
-        # move down 2 to row 3 from e to z,,
-        # move up 1 to row 2 from z to a
-        # move down 1 to row 3 from a to c
-        # move up 1 to row 2 from c to h
         def determine_row(position):
             # first row
             if position < 12:
@@ -76,11 +81,23 @@ def type_madden():
             # negative number is backwards (left), postive is forwards (right)
             move_number = move - current
             if move_number < 0:
+                print("left")
+                print(move_number)
                 # move left
                 press_amount(abs(move_number), vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
-            else:
+            elif move_number > 0:
+                print("right")
+                print(move_number)
                 # move right
                 press_amount(move_number, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
+            else:
+                print("dont move a muscle")
+
+        def determine_buffer_characters(row):
+            if row == 1:
+                return 13
+            else:
+                return 26
 
         keys = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '{', '}', 'BACK', 'a', 's', 'd', 'f', 'g', 'h', 'j',
                 'k', 'l', ':', 'qts', '|', 'caps', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '?', '~', 'clr']
@@ -91,25 +108,52 @@ def type_madden():
         # determine rows for each current and move
         current_row = determine_row(current_pos)
         move_row = determine_row(move_pos)
+        # in same row
         if current_row == move_row:
-            # in same row
             move_to_character(move_pos, current_pos)
+        # not in same row
         else:
-            # not in same row
             rows_to_move = abs(current_row - move_row)
+            buffer_characters = determine_buffer_characters(rows_to_move)
+            # move down
             if current_row < move_row:
-                # move down
 
                 print("move down")
                 print(rows_to_move)
-
                 press_amount(rows_to_move, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
-            else:
 
+                # determine how many spaces
+                move_amount = abs(current_pos - move_pos) - buffer_characters
+                if move_amount > 0:
+                    print("move right")
+                    print(move_amount)
+                    # move right
+                    press_amount(move_amount, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
+                else:
+                    print("move left")
+                    print(move_amount)
+                    # move left
+                    if move_amount != 0:
+                        press_amount(abs(move_amount), vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+            # move up
+            else:
                 print("move up")
                 print(rows_to_move)
-                # move up
                 press_amount(rows_to_move, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_UP)
+                # determine move
+                move_amount = abs(current_pos - move_pos) - buffer_characters
+                if move_amount < 0:
+                    print("move right")
+                    print(move_amount)
+                    # move right
+                    press_amount(abs(move_amount), vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_RIGHT)
+                else:
+                    print("move left")
+                    print(move_amount)
+                    # move left
+                    if move_amount != 0:
+                        press_amount(move_amount, vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_LEFT)
+
         current_pos = move_pos
         press_once(vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
 
@@ -155,7 +199,7 @@ def press_once(btn):
     time.sleep(0.1)
     gamepad.release_button(button=btn)
     gamepad.update()
-    time.sleep(0.1)
+    time.sleep(0.2)
 
 
 def press_and_release_controller_button(btn):
@@ -214,6 +258,12 @@ def on_release(key):
         press_and_release_controller_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_RIGHT_SHOULDER)
     if key == Key.alt_l:
         press_and_release_controller_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_LEFT_SHOULDER)
+        return True
+    if key == Key.shift_r:
+        press_and_release_controller_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_X)
+        return
+    if key == Key.shift_r:
+        press_and_release_controller_button(vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
         return True
     # Movement
     if key == Key.left:
