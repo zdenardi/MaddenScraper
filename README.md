@@ -7,7 +7,7 @@ This is a hobby project to try to
 
 Still a work in progress and lots of messy code that needs cleaned, 
 -controller.py is starting to allow a user to use a keyboard to navigate xbox
-  - backspage - B
+  - backspace - B
   - Enter - A
   - right ctrl -Rb
   - left alt - LB
